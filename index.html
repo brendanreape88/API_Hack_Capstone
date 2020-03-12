@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nature Me</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Nature Me</h1>
+        <h2>Find your nearest national park and lodging.</h2>
+
+        <form id="js-form">
+            <input type="text" placeholder="enter your city" name="search-term" id="js-search-term" required>
+            <button type="submit">Go!</button>
+        </form>
+        
+        <section id="results" class="hidden">
+            <h3>Your nearest national park is:</h3>
+            <div class="park">
+                <img>
+                <img>
+                <img>
+            </div>
+            <h3>Stuff about the park</h3>
+            <div class="park-info">
+            </div>
+            <h3>Not a tent person?</h3>
+            <div class="hotels">
+            </div>
+        </section>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
