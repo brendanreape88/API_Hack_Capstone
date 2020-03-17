@@ -17,11 +17,9 @@ function displayResults(responseJson) {
     if(responseJson.total === '0'){
       $('#js-error-message').text('No parks found'); 
     } else {
-        for (let i = 0; i < responseJson.XXX.length; i++){
+        for (let i = 0; i < responseJson.results.length; i++){
         $('#results-list').append(
-            `<li><h3>${responseJson.XXX[i].YYY}</h3>
-            <p>${responseJson.XXX[i].YYY}</p>
-            <p><a href="${responseJson.XXX[i].YYY}">${responseJson.XXX[i].YYY}</a></p>
+            `<li><h3>${responseJson.results[i].name}</h3>
             </li>`
         )};
     }
@@ -30,13 +28,14 @@ function displayResults(responseJson) {
 
 function getNearestPark(searchCity){
     const params = {
-        key = googlePlacesApiKey,
-        query = 'national park closest to ' + searchCity,
+        key : googlePlacesApiKey,
+        query : 'national park closest to ' + searchCity,
     };
     const queryString = formatQueryParams(params);
     const url = googlePlacesUrl + queryString;
+    console.log(url);
 
-    fetch(url)
+    fetch(url, {mode: 'no-cors'})
     .then(response => {
       if (response.ok) {
         return response.json();
@@ -52,11 +51,12 @@ function getNearestPark(searchCity){
 function watchForm(){
     $('#js-form').submit(event => {
         event.preventDefault();
-        const searchCity = $('js-search-term').val();
+        const searchCity = $('#js-search-term').val();
+        console.log(searchCity);
         getNearestPark(searchCity);
-        getParkPictures();
+        /*getParkPictures();
         getParkInfo();
-        getHotelInfo();
+        getHotelInfo();*/
     });
 }
 
