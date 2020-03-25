@@ -28,36 +28,22 @@ function displayParkInfo(parkName, responseJson) {
 
    }
 
-/*function displayHotelInfo(responseJson) {
-    console.log(responseJson);
+function displayHotelInfo(hotelInfo) {
+    console.log(hotelInfo);
     $('#hotels').empty();
-    for (let i = 0; i <= 3; i++){
+    $('#hotels').append(
+        '<h3>Not a tent person? Check out these hotels:</h3>'
+    )
+    for (let i = 0; i < 3; i++){
         $('#hotels').append(
-
+            `<h3>${hotelInfo.results[i].name}</h3>
+             <h3>Rating ${hotelInfo.results[i].rating} stars</h3>`
         )
     }
     $('#hotels').removeClass('hidden');
-}*/
-
-//////////////////////////////////////////////////////////////////////////////////PlacesAPI
-
-/*function formatCityParams(cityParams) {
-    const cityItems = Object.keys(cityParams)
-      .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(cityParams[key])}`)
-    return cityItems.join('&');
 }
 
-function getSearchCityId(searchCity){
-    const cityParams = {
-        key : googlePlacesApiKey,
-        query : searchCity
-    };
-    const queryString = formatCityParams(cityParams);
-    const fullCityUrl = googlePlacesUrl + queryString;
-    console.log(fullCityUrl);
-
-    return fetch("https://cors-anywhere.herokuapp.com/"+fullCityUrl)
-}*/
+//////////////////////////////////////////////////////////////////////////////////PlacesAPI
 
 function formatPlacesParams(placesParams) {
     const placesItems = Object.keys(placesParams)
@@ -74,7 +60,21 @@ function getNearestPark(searchCity){
     const fullPlacesUrl = googlePlacesUrl + queryString;
     console.log(fullPlacesUrl);
 
-    return fetch("https://cors-anywhere.herokuapp.com/"+fullPlacesUrl)
+    return fetchUrl("https://cors-anywhere.herokuapp.com/"+fullPlacesUrl)
+}
+
+function getParkName(responseJson) {       
+    let filteredResult = responseJson.results.filter(item => {
+        return item.name.includes('National Park') && !item.name.includes('National Parks')
+            })
+    
+    let parkName = filteredResult[0].name;
+    console.log(parkName);
+
+    if (parkName)
+      return Promise.resolve(parkName);
+    else 
+      return Promise.reject(new Error("No park found"));
 }
 
 function formatHotelParams(hotelParams) {
@@ -83,17 +83,17 @@ function formatHotelParams(hotelParams) {
     return hotelItems.join('&');
 }
 
-/*function getHotelInfo(parkName){
+function getHotelInfo(parkName, stateCode){
     const hotelParams = {
         key : googlePlacesApiKey,
-        query : 'hotels closest to ' + searchCity
+        query : 'hotels closest to ' + parkName + ' ' + stateCode
     };
     const queryString = formatHotelParams(hotelParams);
     const fullHotelUrl = googlePlacesUrl + queryString;
-    console.log(fullHotelUrl);
+    console.log("hotel url:", fullHotelUrl);
 
-    return fetch("https://cors-anywhere.herokuapp.com/"+fullHotelUrl)
-}*/
+    return fetchUrl("https://cors-anywhere.herokuapp.com/"+fullHotelUrl)
+}
 
 //////////////////////////////////////////////////////////////////////////////////ParkAPI
 
@@ -113,103 +113,49 @@ function getParkInfo(parkName) {
     const fullParkUrl = nationalParkUrl + '?' + queryString;
     console.log(fullParkUrl);
     
-    return fetch(fullParkUrl);
+    return fetchUrl(fullParkUrl);
   }
 
-///////////////////////////////////////////////////////////////////////////////DistanceAPI
-
-/*function formatCityToParkParams(cityToParkParams) {
-    const cityToParkItems = Object.keys(cityToParkParams)
-      .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(cityToParkParams[key])}`)
-    return cityToParkItems.join('&');
+function fetchUrl(url) {
+  return fetch(url).then(response => {
+    if (response.ok) {
+      return response.json();
+    }
+  throw new Error(response.statusText);
+  });
 }
-
-function cityToParkDistance(cityId, parkId) {
-    console.log(cityId, parkId);
-    const cityToParkParams = {
-        origins: cityId,
-        destinations: parkId,
-        api_key: googlePlacesApiKey,
-    };
-    const queryString = formatCityToParkParams(cityToParkParams);
-    const fullCityToParkUrl = googleDistanceMatrixUrl + queryString;
-    console.log(fullCityToParkUrl);
-    
-    return fetch(fullCityToParkUrl);
-};
-
-function formatParkToHotelParams(parkToHotelParams) {
-    const parkToHotelItems = Object.keys(parkToHotelParams)
-      .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(parkToHotelParams[key])}`)
-    return parkToHotelItems.join('&');
-}
-
-function parktoHotelDistance(parkId, hotelId1) {
-    console.log(parkId, hotelId1);
-    const parkToHotelParams = {
-        origins: parkId,
-        destinations: hotelId1,
-        api_key: googlePlacesApiKey,
-    };
-    const queryString = formatParkToHotelParams(parkToHotelParams);
-    const fullParkToHotelUrl = googleDistanceMatrixUrl + queryString;
-    console.log(fullParkToHotelUrl);
-    
-    return fetch(fullParkToHotelUrl);
-};*/
-
-///write separate functions for other two hotels?//
-
-//////////////////////////////////////////////////////////////////////////////////All
 
 function watchForm(){
     $('#js-form').submit(event => {
         event.preventDefault();
+
+        let info = {
+          parkName: null
+        };
+
         const searchCity = $('#js-search-term').val();
         console.log(searchCity);
-        /*getSearchCityId(searchCity).then(response => {
-            if (response.ok) {
-                return reponse.json();
-            }
-            throw new Error(response.statusText);
-        }).then((responseJson) => {
-            console.log(responseJson);
-            let cityId = responseJson.results[0].place_id;
-            console.log(cityId);
-        })*/
-        getNearestPark(searchCity).then(response => {
-            if (response.ok) {
-              return response.json();
-            }
-          throw new Error(response.statusText);
-          }).then((responseJson) => {
-            console.log(responseJson);
-            let filteredResult = responseJson.results.filter(item => {
-              return item.name.includes('National Park');
-            })
-            console.log(filteredResult);
-            let parkName = filteredResult[0].name;
-            console.log(parkName);
-            getParkInfo(parkName).then(response => {
-                if (response.ok) {
-                    return response.json();
-                  }
-                throw new Error(response.statusText);
-                }).then((responseJson) => {
-                  console.log(parkName, responseJson);   
-                  displayParkInfo(parkName, responseJson);
-            })
-            getHotelInfo(parkName).then(response => {
-                if (response.ok) {
-                  return response.json();
-                }
-              throw new Error(response.statusText);
-              }).then((responseJson) => {
-                  console.log(responseJson);
-                  displayHotelInfo(responseJson);
-              })
-        })
+
+        getNearestPark(searchCity).then(
+          getParkName
+        ).then(
+          parkName => {
+            info.parkName = parkName;
+            return getParkInfo(parkName);
+          }
+        ).then(
+          parkInfo => {
+            let stateCode = parkInfo.data[0].states;
+            displayParkInfo(info.parkName, parkInfo);
+            return getHotelInfo(info.parkName, stateCode);
+          }
+        ).then(
+          hotelInfo => displayHotelInfo(hotelInfo)
+        ).catch(
+          e => console.log(e)
+        );
     })
 }
 
 $(watchForm);
+
