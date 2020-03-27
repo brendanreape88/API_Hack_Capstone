@@ -3,26 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nature Me</title>
+    <title>Get Some Nature</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <nav class="navbar">
+        <span class="logo">GSN</span>
+        <ul class="menu">
+            <li>Donate</li>
+        </ul>
+    </nav>
     <div class="container">
-        <h1>Nature Me</h1>
-        <h2>Find your nearest national park and lodging.</h2>
+        <h1 class="title">Get Some Nature</h1>
+        <h2 class="slogan">Find your nearest national park and lodging.</h2>
 
-        <form id="js-form">
-            <input type="text" placeholder="enter your city" name="search-term" id="js-search-term" required>
-            <button type="submit">Go!</button>
+        <form class="form" id="js-form">
+            <input type="text" placeholder="enter your city" name="search-term" class="search-field" id="js-search-term" required>
+            <button type="submit" class="search-button">Go!</button>
         </form>
-        
-        <section id="results" class="hidden">
-
-        </section>
-        <section id="hotels" class="hidden">
-
-        </section>
     </div>
+    <section id="results" class="hidden">
+
+    </section>
+    <section id="hotels" class="hidden">
+
+    </section>
+    
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="script.js"></script>
 </body>
