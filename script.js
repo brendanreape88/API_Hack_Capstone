@@ -34,6 +34,8 @@ function displayParkInfo(parkName, responseJson) {
     $('#park-pic-box').removeClass('hidden');
     $('#deets').removeClass('hidden');
 
+    $.scrollTo($('#results'), 1000);
+
    }
 
 function displayHotelInfo(hotelInfo) {
@@ -53,11 +55,6 @@ function displayHotelInfo(hotelInfo) {
     }
     $('#hotels').removeClass('hidden');
 }
-
-/*function scrollToReults() {
-    $('html, body').animate({
-        scrollTop: $('html, body').get(0).scrollHeight}, 2000);
-}*/
 
 //////////////////////////////////////////////////////////////////////////////////PlacesAPI
 
@@ -79,14 +76,19 @@ function getNearestPark(searchCity){
     return fetchUrl("https://cors-anywhere.herokuapp.com/"+fullPlacesUrl)
 }
 
-function getParkName(responseJson) {       
+function getParkName(responseJson) { 
+      
     let filteredResult = responseJson.results.filter(item => {
         return item.name.includes('National Park') && !item.name.includes('National Parks')
-            })
+            });
+
+  console.log(filteredResult);
+    if (filteredResult.length === 0) {
+      throw new Error("No results found :(");
+    }
     
     let parkName = filteredResult[0].name;
-    console.log(parkName);
-
+  
     if (parkName)
       return Promise.resolve(parkName);
     else 
@@ -147,6 +149,10 @@ function watchForm(){
     $('#js-form').submit(event => {
         event.preventDefault();
 
+        $('.search-button').prop('disabled', true);
+        $('.error-message').text('');
+        
+
         let info = {
           parkName: null
         };
@@ -169,9 +175,12 @@ function watchForm(){
           }
         ).then(
           hotelInfo => displayHotelInfo(hotelInfo),
-          /*scrollToResults()*/
         ).catch(
-          e => console.log(e)
+          e => $('.error-message').text(e.message)
+        ).finally(
+          () => {
+            $('.search-button').prop('disabled', false);
+          }
         );
     })
 }

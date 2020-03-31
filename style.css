@@ -158,6 +158,13 @@
       align-items: center;
   }
 
+  .error-message {
+      margin-top: 10%;
+      font-weight: 700;
+      font-size: 5vw;
+      color: yellow;
+  }
+
 @media only screen and (min-width: 481px) {
 
 .container {
