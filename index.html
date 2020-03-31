@@ -8,24 +8,35 @@
 </head>
 <body>
     <nav class="navbar">
-        <span class="logo">GSN</span>
+        <span class="logo"><a href="https://brendanreape88.github.io/API_Hack_Capstone" id="logo">GSN</a></span>
         <ul class="menu">
-            <li>Donate</li>
+            <li><a href="https://paypal.me/brendanreape?locale.x=en_US" id="menu">Donate</a></li>
         </ul>
     </nav>
     <div class="container">
-        <h1 class="title">Get Some Nature</h1>
-        <h2 class="slogan">Find your nearest national park and lodging.</h2>
+        <div class="hero-box">
+            <h1 class="title">Get Some Nature</h1>
+            <h2 class="slogan">Find your nearest national park and lodging.</h2>
 
-        <form class="form" id="js-form">
-            <input type="text" placeholder="enter your city" name="search-term" class="search-field" id="js-search-term" required>
-            <button type="submit" class="search-button">Go!</button>
-        </form>
+            <form class="form" id="js-form">
+                <input type="text" placeholder="enter your city" name="search-term" class="search-field" id="js-search-term" required>
+                <button type="submit" class="search-button">Go!</button>
+            </form>
+        </div>
     </div>
-    <section id="results" class="hidden">
+    <section id="results" class="results hidden">
+        
+    </section>
+
+    <div class="park-pic-box hidden" id="park-pic-box">
+
+    </div>
+
+    <section id="deets" class="deets hidden">
 
     </section>
-    <section id="hotels" class="hidden">
+
+    <section id="hotels" class="hotels hidden">
 
     </section>
     

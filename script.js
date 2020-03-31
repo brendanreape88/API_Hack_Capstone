@@ -6,25 +6,33 @@ const nationalParkApiKey = 'zYh3yau6EMhATDK2Jf8mA8dC4MOhEvYX0W7asnHu';
 const nationalParkUrl = 'https://developer.nps.gov/api/v1/parks';
 const googleDistanceMatrixUrl ='http://maps.googleapis.com/maps/api/distancematrix/json?'
 
+////////////////////////////////////////////////////////////////////////////////////Display
 function displayParkInfo(parkName, responseJson) {
     console.log(parkName, responseJson)
     let parkUrl = responseJson.data[0].url;
     console.log(parkUrl);
     $('#results').empty();
+    $('#park-pic-box').empty();
+    $('#deets').empty();
+    
     $('#results').append(
-        `<h3><a href="${parkUrl}">${parkName}</a><h3>`
+        `<h3>Your nearest park is...</h3>
+        <h3><a href="${parkUrl}">${parkName}</a><h3>`
     );
     
     for (let i = 0; i<3; i++){
-        $('#results').append(
+        $('#park-pic-box').append(
             `<img src="${responseJson.data[0].images[i].url}" class="parkPic" alt="park picture ${i}">`
         )};
 
-    $('#results').append(
-        `<p>${responseJson.data[0].description}</p>`
+    $('#deets').append(
+        `<h3>Park deets...<h3>
+        <p>${responseJson.data[0].description}</p>`
     );
 
     $('#results').removeClass('hidden');
+    $('#park-pic-box').removeClass('hidden');
+    $('#deets').removeClass('hidden');
 
    }
 
@@ -32,16 +40,24 @@ function displayHotelInfo(hotelInfo) {
     console.log(hotelInfo);
     $('#hotels').empty();
     $('#hotels').append(
-        '<h3>Not a tent person? Check out these hotels:</h3>'
+        '<h3>Not a tent person?</h3>',
+        '<div class="hotel-list-box" id="hotel-list-box"></div>'
     )
     for (let i = 0; i < 3; i++){
-        $('#hotels').append(
-            `<h3>${hotelInfo.results[i].name}</h3>
-             <h3>Rating ${hotelInfo.results[i].rating} stars</h3>`
+        $('#hotel-list-box').append(
+            `<div class="hotel-grouping-box">
+                <h4 class="hotel-name">${hotelInfo.results[i].name}</h4>
+                <h4 class="hotel-rating">Rating: ${hotelInfo.results[i].rating} stars</h4>
+            </div>`
         )
     }
     $('#hotels').removeClass('hidden');
 }
+
+/*function scrollToReults() {
+    $('html, body').animate({
+        scrollTop: $('html, body').get(0).scrollHeight}, 2000);
+}*/
 
 //////////////////////////////////////////////////////////////////////////////////PlacesAPI
 
@@ -86,7 +102,7 @@ function formatHotelParams(hotelParams) {
 function getHotelInfo(parkName, stateCode){
     const hotelParams = {
         key : googlePlacesApiKey,
-        query : 'hotels closest to ' + parkName + ' ' + stateCode
+        query : 'hotels closest to ' + parkName + ' ' + stateCode,
     };
     const queryString = formatHotelParams(hotelParams);
     const fullHotelUrl = googlePlacesUrl + queryString;
@@ -125,6 +141,8 @@ function fetchUrl(url) {
   });
 }
 
+////////////////////////////////////////////////////////////////////////////////////watchForm
+
 function watchForm(){
     $('#js-form').submit(event => {
         event.preventDefault();
@@ -150,7 +168,8 @@ function watchForm(){
             return getHotelInfo(info.parkName, stateCode);
           }
         ).then(
-          hotelInfo => displayHotelInfo(hotelInfo)
+          hotelInfo => displayHotelInfo(hotelInfo),
+          /*scrollToResults()*/
         ).catch(
           e => console.log(e)
         );
