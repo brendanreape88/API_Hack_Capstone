@@ -8,9 +8,7 @@ const googleDistanceMatrixUrl ='http://maps.googleapis.com/maps/api/distancematr
 
 ////////////////////////////////////////////////////////////////////////////////////Display
 function displayParkInfo(parkName, responseJson) {
-    console.log(parkName, responseJson)
     let parkUrl = responseJson.data[0].url;
-    console.log(parkUrl);
     $('#results').empty();
     $('#park-pic-box').empty();
     $('#deets').empty();
@@ -20,7 +18,9 @@ function displayParkInfo(parkName, responseJson) {
         <h3><a href="${parkUrl}">${parkName}</a><h3>`
     );
     
-    for (let i = 0; i<3; i++){
+    const imgSize = Math.min(responseJson.data[0].images.length, 3);
+
+    for (let i = 0; i<imgSize; i++) {
         $('#park-pic-box').append(
             `<img src="${responseJson.data[0].images[i].url}" class="parkPic" alt="park picture ${i}">`
         )};
@@ -39,17 +39,25 @@ function displayParkInfo(parkName, responseJson) {
    }
 
 function displayHotelInfo(hotelInfo) {
-    console.log(hotelInfo);
+    let filteredResults = hotelInfo.results.filter(item => {
+    return !item.name.includes('Campground')
+        });
+        
+        console.log('fihi', filteredResults)
+
     $('#hotels').empty();
     $('#hotels').append(
         '<h3>Not a tent person?</h3>',
         '<div class="hotel-list-box" id="hotel-list-box"></div>'
     )
-    for (let i = 0; i < 3; i++){
+
+
+    const hotelSize = Math.min(filteredResults.length, 3);
+    for (let i = 0; i < hotelSize; i++){
         $('#hotel-list-box').append(
             `<div class="hotel-grouping-box">
-                <h4 class="hotel-name">${hotelInfo.results[i].name}</h4>
-                <h4 class="hotel-rating">Rating: ${hotelInfo.results[i].rating} stars</h4>
+                <h4 class="hotel-name">${filteredResults[i].name}</h4>
+                <h4 class="hotel-rating">Rating: ${filteredResults[i].rating} stars</h4>
             </div>`
         )
     }
@@ -71,28 +79,23 @@ function getNearestPark(searchCity){
     };
     const queryString = formatPlacesParams(placesParams);
     const fullPlacesUrl = googlePlacesUrl + queryString;
-    console.log(fullPlacesUrl);
 
     return fetchUrl("https://cors-anywhere.herokuapp.com/"+fullPlacesUrl)
 }
 
-function getParkName(responseJson) { 
-      
-    let filteredResult = responseJson.results.filter(item => {
-        return item.name.includes('National Park') && !item.name.includes('National Parks')
-            });
-
-  console.log(filteredResult);
-    if (filteredResult.length === 0) {
-      throw new Error("No results found :(");
-    }
+function filterResults(responseJson) { 
+    /*let filteredResults = responseJson.results.filter(item => {
+        return item.name.includes('National Park') 
+    });
+*/
+    /*if (filteredResults.length === 0) {
+      throw new Error("No results found");
+    }*/
+    //for (const r of filteredResult) console.log('*', r.name)
     
-    let parkName = filteredResult[0].name;
+    //let parkName = filteredResult[0].name;
   
-    if (parkName)
-      return Promise.resolve(parkName);
-    else 
-      return Promise.reject(new Error("No park found"));
+   return Promise.resolve(responseJson.results);
 }
 
 function formatHotelParams(hotelParams) {
@@ -108,7 +111,6 @@ function getHotelInfo(parkName, stateCode){
     };
     const queryString = formatHotelParams(hotelParams);
     const fullHotelUrl = googlePlacesUrl + queryString;
-    console.log("hotel url:", fullHotelUrl);
 
     return fetchUrl("https://cors-anywhere.herokuapp.com/"+fullHotelUrl)
 }
@@ -122,14 +124,13 @@ function formatParksParams(parksParams) {
 }
 
 function getParkInfo(parkName) {
-    console.log(parkName);
     const parksParams = {
       api_key: nationalParkApiKey,
       q: parkName,
+      limit: 1
     };
     const queryString = formatParksParams(parksParams);
     const fullParkUrl = nationalParkUrl + '?' + queryString;
-    console.log(fullParkUrl);
     
     return fetchUrl(fullParkUrl);
   }
@@ -146,44 +147,73 @@ function fetchUrl(url) {
 ////////////////////////////////////////////////////////////////////////////////////watchForm
 
 function watchForm(){
-    $('#js-form').submit(event => {
-        event.preventDefault();
+  $('#js-form').submit(event => {
+      event.preventDefault();
 
-        $('.search-button').prop('disabled', true);
-        $('.error-message').text('');
-        
+      $('.search-button').prop('disabled', true);
+      $('.error-message').text('');
+      
 
-        let info = {
-          parkName: null
-        };
+      let info = {
+        parkName: null
+      };
 
-        const searchCity = $('#js-search-term').val();
-        console.log(searchCity);
+      const searchCity = $('#js-search-term').val();
+      console.log(searchCity);
 
-        getNearestPark(searchCity).then(
-          getParkName
-        ).then(
-          parkName => {
-            info.parkName = parkName;
-            return getParkInfo(parkName);
-          }
-        ).then(
-          parkInfo => {
-            let stateCode = parkInfo.data[0].states;
-            displayParkInfo(info.parkName, parkInfo);
-            return getHotelInfo(info.parkName, stateCode);
-          }
-        ).then(
-          hotelInfo => displayHotelInfo(hotelInfo),
-        ).catch(
-          e => $('.error-message').text(e.message)
-        ).finally(
-          () => {
-            $('.search-button').prop('disabled', false);
-          }
-        );
-    })
+      getNearestPark(searchCity).then(
+        filterResults
+      ).then(
+        filtered => new Promise(async (resolve, reject) => {
+          console.log("$$$", filtered.length)
+            let breakLoop = false;
+            for (const res of filtered) {
+              if(breakLoop) {
+                break;
+              }
+              console.log(res)
+              try {
+                info.parkName = res.name;
+                await getParkInfo(res.name).then(
+                    parkInfo => {
+
+                      if(parkInfo.data.length == 0) {
+                        throw 'no result';
+                      } else {
+                        breakLoop = true;
+                    
+                        let stateCode = parkInfo.data[0].states;
+                        displayParkInfo(info.parkName, parkInfo);
+                        return getHotelInfo(info.parkName, stateCode);
+                      }
+                    }
+                ).then(
+                  displayHotelInfo
+                ).then(
+                  () => resolve()
+                ).catch(
+                  console.log
+                );
+              } catch (e) {
+                console.log(e);
+                continue;
+              }
+            }
+         
+            console.log("end of results")
+            reject(Error("No results found"));
+          })
+      ).catch(
+        e => {
+          console.log(e)
+          $('.error-message').text(e.message)
+        }
+      ).finally(
+        () => {
+          $('.search-button').prop('disabled', false);
+        }
+      );
+  })
 }
 
 $(watchForm);
-
