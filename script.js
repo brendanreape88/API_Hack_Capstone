@@ -6,7 +6,8 @@ const nationalParkApiKey = 'zYh3yau6EMhATDK2Jf8mA8dC4MOhEvYX0W7asnHu';
 const nationalParkUrl = 'https://developer.nps.gov/api/v1/parks';
 const googleDistanceMatrixUrl ='http://maps.googleapis.com/maps/api/distancematrix/json?'
 
-////////////////////////////////////////////////////////////////////////////////////Display
+
+//Displays basic park information
 function displayParkInfo(parkName, responseJson) {
     let parkUrl = responseJson.data[0].url;
     $('#results').empty();
@@ -15,7 +16,7 @@ function displayParkInfo(parkName, responseJson) {
     
     $('#results').append(
         `<h3>Your nearest park is...</h3>
-        <h3><a href="${parkUrl}">${parkName}</a><h3>`
+        <h3><a href="${parkUrl}">${parkName}</a></h3>`
     );
     
     const imgSize = Math.min(responseJson.data[0].images.length, 3);
@@ -38,6 +39,8 @@ function displayParkInfo(parkName, responseJson) {
 
 }
 
+
+//Displays basic hotel information
 function displayHotelInfo(hotelInfo) {
     let filteredResults = hotelInfo.results.filter(item => {
     return !item.name.includes('Campground')
@@ -47,7 +50,7 @@ function displayHotelInfo(hotelInfo) {
     $('#hotels').append(
         '<h3>Not a tent person?</h3>',
         '<div class="hotel-list-box" id="hotel-list-box"></div>'
-    )
+    );
 
 
     const hotelSize = Math.min(filteredResults.length, 3);
@@ -57,18 +60,18 @@ function displayHotelInfo(hotelInfo) {
                 <h4 class="hotel-name">${filteredResults[i].name}</h4>
                 <h4 class="hotel-rating">Rating: ${filteredResults[i].rating} stars</h4>
             </div>`
-        )
-    }
+        );
+    };
     $('#hotels').removeClass('hidden');
-}
+};
 
-//////////////////////////////////////////////////////////////////////////////////PlacesAPI
 
+//Makes call to Google Places API
 function formatPlacesParams(placesParams) {
     const placesItems = Object.keys(placesParams)
       .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(placesParams[key])}`)
     return placesItems.join('&');
-}
+};
 
 function getNearestPark(searchCity){
     const placesParams = {
@@ -79,17 +82,17 @@ function getNearestPark(searchCity){
     const fullPlacesUrl = googlePlacesUrl + queryString;
 
     return fetchUrl("https://cors-anywhere.herokuapp.com/"+fullPlacesUrl)
-}
+};
 
 function filterResults(responseJson) { 
    return Promise.resolve(responseJson.results);
-}
+};
 
 function formatHotelParams(hotelParams) {
     const hotelItems = Object.keys(hotelParams)
       .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(hotelParams[key])}`)
     return hotelItems.join('&');
-}
+};
 
 function getHotelInfo(parkName, stateCode){
     const hotelParams = {
@@ -100,15 +103,15 @@ function getHotelInfo(parkName, stateCode){
     const fullHotelUrl = googlePlacesUrl + queryString;
 
     return fetchUrl("https://cors-anywhere.herokuapp.com/"+fullHotelUrl)
-}
+};
 
-//////////////////////////////////////////////////////////////////////////////////ParkAPI
 
+//Makes call to the National Park API
 function formatParksParams(parksParams) {
     const parksItems = Object.keys(parksParams)
       .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(parksParams[key])}`)
     return parksItems.join('&');
-}
+};
 
 function getParkInfo(parkName) {
     const parksParams = {
@@ -120,7 +123,7 @@ function getParkInfo(parkName) {
     const fullParkUrl = nationalParkUrl + '?' + queryString;
     
     return fetchUrl(fullParkUrl);
-  }
+};
 
 function fetchUrl(url) {
   return fetch(url).then(response => {
@@ -129,10 +132,10 @@ function fetchUrl(url) {
     }
   throw new Error(response.statusText);
   });
-}
+};
 
-////////////////////////////////////////////////////////////////////////////////////watchForm
 
+//watchForm for submit
 function watchForm(){
   $('#js-form').submit(event => {
       event.preventDefault();
@@ -169,7 +172,7 @@ function watchForm(){
                         let stateCode = parkInfo.data[0].states;
                         displayParkInfo(info.parkName, parkInfo);
                         return getHotelInfo(info.parkName, stateCode);
-                      }
+                      };
                     }
                 ).then(
                   displayHotelInfo
@@ -178,8 +181,8 @@ function watchForm(){
                 ).catch();
               } catch (e) {
                 continue;
-              }
-            }
+              };
+            };
             reject(Error("No results found"));
           })
       ).catch(
@@ -191,7 +194,7 @@ function watchForm(){
           $('.search-button').prop('disabled', false);
         }
       );
-  })
-}
+  });
+};
 
 $(watchForm);
