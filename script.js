@@ -36,14 +36,12 @@ function displayParkInfo(parkName, responseJson) {
 
     $.scrollTo($('#results'), 1000);
 
-   }
+}
 
 function displayHotelInfo(hotelInfo) {
     let filteredResults = hotelInfo.results.filter(item => {
     return !item.name.includes('Campground')
         });
-        
-        console.log('fihi', filteredResults)
 
     $('#hotels').empty();
     $('#hotels').append(
@@ -84,17 +82,6 @@ function getNearestPark(searchCity){
 }
 
 function filterResults(responseJson) { 
-    /*let filteredResults = responseJson.results.filter(item => {
-        return item.name.includes('National Park') 
-    });
-*/
-    /*if (filteredResults.length === 0) {
-      throw new Error("No results found");
-    }*/
-    //for (const r of filteredResult) console.log('*', r.name)
-    
-    //let parkName = filteredResult[0].name;
-  
    return Promise.resolve(responseJson.results);
 }
 
@@ -159,19 +146,16 @@ function watchForm(){
       };
 
       const searchCity = $('#js-search-term').val();
-      console.log(searchCity);
 
       getNearestPark(searchCity).then(
         filterResults
       ).then(
         filtered => new Promise(async (resolve, reject) => {
-          console.log("$$$", filtered.length)
             let breakLoop = false;
             for (const res of filtered) {
               if(breakLoop) {
                 break;
               }
-              console.log(res)
               try {
                 info.parkName = res.name;
                 await getParkInfo(res.name).then(
@@ -191,21 +175,15 @@ function watchForm(){
                   displayHotelInfo
                 ).then(
                   () => resolve()
-                ).catch(
-                  console.log
-                );
+                ).catch();
               } catch (e) {
-                console.log(e);
                 continue;
               }
             }
-         
-            console.log("end of results")
             reject(Error("No results found"));
           })
       ).catch(
         e => {
-          console.log(e)
           $('.error-message').text(e.message)
         }
       ).finally(

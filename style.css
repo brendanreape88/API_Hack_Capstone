@@ -61,7 +61,8 @@ button:hover {
   padding-left: 8%;
   padding-right: 8%;
   text-align: center;
-  background-image: url(https://raw.githubusercontent.com/brendanreape88/API_Hack_Capstone/master/images/API_Backdrop.jpg);
+  /*background-image: url(https://raw.githubusercontent.com/brendanreape88/API_Hack_Capstone/master/images/API_Backdrop.jpg);*/
+  background: linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url('https://raw.githubusercontent.com/brendanreape88/API_Hack_Capstone/master/images/API_Backdrop.jpg');
   background-position: center;
   background-size: cover;
 }
